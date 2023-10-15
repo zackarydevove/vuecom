@@ -1,0 +1,23 @@
+{
+	"compilerOptions": {
+	  "target": "ESNext",
+	  "module": "ESNext",
+	  "moduleResolution": "node",
+	  "jsx": "preserve",
+	  "esModuleInterop": true,
+	  "skipLibCheck": true,
+	  "strict": true,
+	  "lib": ["DOM", "DOM.Iterable", "ESNext"],
+	  "baseUrl": "./",
+	  "paths": {
+		"@/*": ["resources/js/*"]
+	  }
+	},
+	"include": [
+	  "resources/js/**/*.ts",
+	  "resources/js/**/*.d.ts",
+	  "resources/js/**/*.tsx",
+	  "resources/js/**/*.vue"
+	]
+}
+  
