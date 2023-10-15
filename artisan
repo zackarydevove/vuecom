@@ -1,3 +1,4 @@
+php artisan migrate
 #!/usr/bin/env php
 <?php
 

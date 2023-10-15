@@ -4,17 +4,16 @@
 
 			<a href="/"><button class="back-button">&#60;</button></a>
 
-
 			<h1> Sign up </h1>
-			<form>
+			<form @submit.prevent="signup">
 				<label>E-mail</label>
-				<input>
+				<input placeholder="E-mail" v-model="email" type="email">
 
 				<label>Password</label>
-				<input>
+				<input placeholder="Password" v-model="password" type="password">
 
 				<label>Confirm Password</label>
-				<input>
+				<input placeholder="Confirm Password" v-model="confirm_password" type="password">
 
 				<button type="submit">Submit</button>
 			</form>
@@ -26,13 +25,45 @@
 
 		</div>
 		<div class="right-img">
-
+			
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
+import axios from 'axios';
+export default {
+	data() {
+		return {
+			email: '',
+			password: '',
+			confirm_password: '',
+		}
+	},
+	methods: {
+		async signup() {
+			if (this.password === this.confirm_password)
+			{
+				try {
+					const response = await axios.post('http://127.0.0.1:8000/api/register', {
+						email: this.email,
+						password: this.password,
+					});
 
+					if (response.data.authorisation) {
+						localStorage.setItem('authToken', response.data.authorisation.token);
+					}
+					
+					console.log(response.data.message);
+				} catch (err: any) {
+					console.log(err.response.data);
+				}
+			} else {
+				console.log("Passwords do not match");
+			}
+		}
+	}
+}
 </script>
 
 <style lang="scss">

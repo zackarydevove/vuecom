@@ -1,57 +1,55 @@
 <template>
 	<div class="first-page-login">
-		<div class="left-img">
+		<div class="left-history">
+			<h2>Purchase history</h2>
+			<ul vfor="(item, index) in purchaseHistory" :key="index">
+				<li v-for="(item, index) in purchaseHistory" :key="index">
+					<div class="item-name">{{ item.name }}</div>
+					<div class="item-price">${{ item.price.toFixed(2) }}</div>
+					<div class="item-date">{{ item.date }}</div>
+				</li>
+			</ul>
 
 		</div>
 		<div class="right-form">
 
 			<a href="/"><button class="back-button">&#60;</button></a>
 
-			<h1> Login </h1>
+			<h1> Profile details </h1>
 			<form>
 				<label>E-mail</label>
 				<input>
 
-				<label>Password</label>
+				<h1> Udate password </h1>
+
+				<label>Current Password</label>
+				<input>
+
+				<label>New Password</label>
+				<input>
+
+				<label>Confirm New Password</label>
 				<input>
 
 				<button type="submit">Submit</button>
 			</form>
-			<hr />
-			<div>
-				<a href="/signup">Create an account</a>
-				<a>Password forgot ?</a>
-			</div>
-
 		</div>
 
 	</div>
 </template>
 
 <script lang="ts">
-import axios from 'axios';
 export default {
 	data() {
 		return {
-			email: '',
-			password: '',
-		}
-	},
-	methods: {
-		async login() {
-			try {
-				const res = axios.post('http://127.0.0.1/api/auth/login', {
-					email: this.email,
-					password: this.password
-				})
-
-				// console.log(res.data.message);
-			} catch (err: any) {
-				console.log(err);
-			}
-		}
+			purchaseHistory: [
+				{name: "Product A", price: 49.99, date: "2023-01-12"},
+				{name: "Product B", price: 29.99, date: "2023-01-10"},
+				{name: "Product C", price: 59.99, date: "2023-01-05"},
+			]
+		};
 	}
-}
+};
 </script>
 
 <style lang="scss">
@@ -68,12 +66,40 @@ $transition-speed: 0.3s;
   height: 100vh;
   font-family: $font-primary;
 
-  .left-img {
-	background-image: url('/marble_dumbell3.jpeg');
-	background-size: cover;
-	background-position: center;
+  .left-history {
 	width: 70%;
-  }
+	padding: 30px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 20px;
+	background-color: #f5f5f5;
+
+	h2 {
+		color: $primary-color;
+		font-size: 24px;
+		margin-bottom: 20px;
+	}
+
+	ul {
+		list-style: none;
+		width: 100%;
+
+		li {
+			display: flex;
+			justify-content: space-between;
+			padding: 10px;
+			border: 1px solid $border-color;
+			border-radius: 5px;
+			margin-bottom: 10px;
+
+			.item-name, .item-price, .item-date {
+				flex: 1;
+				text-align: center;
+			}
+		}
+	}
+}
 
   .right-form {
 	position: relative;
