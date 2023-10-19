@@ -6,14 +6,17 @@
 		<ul class="nav-list">
 			<li><a href="/" class="nav-link">HOME</a></li>
 			<li><a href="/product" class="nav-link">PRODUCT</a></li>
+			<li><a href="/forum" class="nav-link">FORUM</a></li>
 		</ul>
 		<div class="auth-actions">
-			<a href="/login" class="login-btn">LOGIN</a>
+			<a v-if="isAuthenticated" href="/profile" class="profile-btn">PROFILE</a>
+			<a v-else href="/login" class="login-btn">LOGIN</a>
 		</div>
 	</nav>
 </template>
 
 <script lang="ts">
+import { ref, onMounted } from 'vue';
 export default {
 	name: 'navbar',
 	props: {
@@ -21,6 +24,19 @@ export default {
 			type: String,
 			default: 'white'
 		}
+	},
+	setup() {
+		const isAuthenticated = ref(false);
+
+		onMounted(() => {
+			if (localStorage.getItem('authToken')) {
+				isAuthenticated.value = true;
+			}
+		});
+
+		return {
+			isAuthenticated
+		};
 	}
 }
 </script>
@@ -73,6 +89,9 @@ $transition-speed: 0.3s ease;
         .login-btn {
             @include link-styles;
         }
+		.profile-btn {
+			@include link-styles;
+		}
     }
 }
 </style>

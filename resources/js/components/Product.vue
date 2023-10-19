@@ -21,7 +21,14 @@
 						<p>20 kg</p>
 						<p>30 kg</p>
 					</div>
-					<div class="buy-button">BUY</div>
+
+
+					<stripe-checkout
+						ref="checkoutRef"
+						:pk="publishableKey"
+						:sessionId="sessionId"
+					/>
+					<div class="buy-button" @click="submit">BUY</div>
 				</div>
 			</div>
 		</div>
@@ -29,10 +36,26 @@
 </template>
   
 <script lang="ts">
+import axios from 'axios';
+import { StripeCheckout } from '@vue-stripe/vue-stripe';
 export default {
 	name: 'product',
+	components: {
+		StripeCheckout,
+	},
 	data() {
 		return {
+			publishableKey: 'pk_test_51O1pVyJfTkkiwhMIfyOBTAdpYsZrRZjvXcvH1J7YzM4yno9W8jj3dfsfjvAEdFQgPdXninIgZa2DWc6xNCyigz6W00aj72Kcel',
+			sessionId: '',
+			loading: false,
+			lineItems: [
+				{
+					price: '249',
+					quantity: 1,
+				},
+			],
+			successURL: 'your-success-url',
+			cancelURL: 'your-cancel-url',
 			images: [
 				'/marble_dumbell1.jpeg',
 				'/marble_dumbell2.jpeg',
@@ -41,6 +64,9 @@ export default {
 			],
 			currentSlide: 0
 		};
+	},
+	mounted() {
+		this.getSession();
 	},
 	methods: {
 		nextSlide() {
@@ -56,7 +82,23 @@ export default {
 			} else {
 				this.currentSlide = this.images.length - 1;
 			}
-		}
+		},
+		getSession() {
+			axios.get('http://127.0.0.1:8000/api/get-checkout-session')
+			.then(res => {
+				if (res.data && res.data.id) {
+					this.sessionId = res.data.id;
+					console.log(res);
+				} else {
+					// Handle error response
+					console.error('Error retrieving session:', res.data);
+				}
+			})
+			.catch(err => console.log(err));
+		},
+		submit () {
+			(this.$refs as any).checkoutRef.redirectToCheckout();
+		},
 	}
 };
 </script>

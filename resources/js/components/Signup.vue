@@ -31,6 +31,7 @@
 </template>
 
 <script lang="ts">
+import { onMounted } from 'vue';
 import axios from 'axios';
 export default {
 	data() {
@@ -55,6 +56,7 @@ export default {
 					}
 					
 					console.log(response.data.message);
+					this.$router.push('/');
 				} catch (err: any) {
 					console.log(err.response.data);
 				}

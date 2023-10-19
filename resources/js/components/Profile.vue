@@ -2,7 +2,7 @@
 	<div class="first-page-login">
 		<div class="left-history">
 			<h2>Purchase history</h2>
-			<ul vfor="(item, index) in purchaseHistory" :key="index">
+			<ul vfor="(item, index) in purchaseHistory">
 				<li v-for="(item, index) in purchaseHistory" :key="index">
 					<div class="item-name">{{ item.name }}</div>
 					<div class="item-price">${{ item.price.toFixed(2) }}</div>
@@ -16,29 +16,38 @@
 			<a href="/"><button class="back-button">&#60;</button></a>
 
 			<h1> Profile details </h1>
-			<form>
+			<form @submit.prevent="changePassword">
 				<label>E-mail</label>
-				<input>
+				<input :value="user ? user.email : ''" readonly>
 
 				<h1> Udate password </h1>
 
 				<label>Current Password</label>
-				<input>
+				<input placeholder="Current Password" type="password" v-model="password">
 
 				<label>New Password</label>
-				<input>
+				<input placeholder="New Password" type="password" v-model="newPassword">
 
 				<label>Confirm New Password</label>
-				<input>
+				<input placeholder="Confirm New Password" type="password" v-model="confirmNewPassword">
 
-				<button type="submit">Submit</button>
+				<button type="submit" class="submit-btn">Submit</button>
 			</form>
+			<button class="logout-btn" @click="logout">Logout</button>
+			<button class="logout-btn" @click="deleteAccount">Delete account</button>
 		</div>
 
 	</div>
 </template>
 
 <script lang="ts">
+import axios from 'axios';
+import { onMounted, ref } from 'vue';
+
+interface User {
+    email: string;
+}
+
 export default {
 	data() {
 		return {
@@ -46,9 +55,107 @@ export default {
 				{name: "Product A", price: 49.99, date: "2023-01-12"},
 				{name: "Product B", price: 29.99, date: "2023-01-10"},
 				{name: "Product C", price: 59.99, date: "2023-01-05"},
-			]
+			],
+			password: '',
+			newPassword: '',
+			confirmNewPassword: '',
 		};
-	}
+	},
+	methods: {
+		async logout() {
+			try {
+				if (localStorage.getItem('authToken')) {
+					const response = await axios.post("http://127.0.0.1:8000/api/logout", {}, {
+						headers: {
+							'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+						}
+					});
+					console.log(response);
+					localStorage.removeItem('authToken');
+					this.$router.push('/');
+				}
+			} catch (error) {
+				console.error(error);
+			}
+		},
+		async deleteAccount() {
+			if (localStorage.getItem('authToken'))
+			{
+				try {
+					const response = await axios.delete('http://127.0.0.1:8000/api/user', {
+						headers: {
+							'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+							'Accept': 'application/json',
+						}
+					});
+					
+					console.log(response.data.message);
+					localStorage.removeItem('authToken');
+					this.$router.push('/');
+				} catch (error) {
+					console.error(error);
+				}
+			}
+		},
+		async changePassword() {
+			if (this.confirmNewPassword !== this.newPassword)
+			{
+				console.log("New passwords doesn't match");
+				return ;
+			}
+			if (!localStorage.getItem('authToken')) 
+			{
+				this.$router.push('/');
+			}
+			try {
+				const response = await axios.post('http://127.0.0.1:8000/api/changepassword', {
+					current_password: this.password,
+					new_password: this.newPassword,
+				}, {
+					headers: {
+						'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+						'Accept': 'application/json',
+					}
+				});
+				
+				console.log(response.data.message);
+				localStorage.removeItem('authToken');
+				this.$router.push('/');
+			} catch (error) {
+				console.error(error);
+			}
+
+		}
+	},
+	setup() {
+		const user = ref<User | null>(null);
+		// const purchaseHistory = ref([
+		// {name: "Product A", price: 49.99, date: "2023-01-12"},
+		// 	// other products...
+		// ]);
+
+		const fetchUser = async () => {
+			try {
+				const response = await axios.get('http://127.0.0.1:8000/api/user', {
+					headers: {
+						'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+					}
+				});
+				user.value = response.data;
+			} catch (error) {
+				console.error(error);
+			}
+		};
+
+		onMounted(() => {
+			fetchUser();
+		});
+
+		return {
+			user,
+			// purchaseHistory,
+		}
+	},
 };
 </script>
 
@@ -60,6 +167,20 @@ $primary-color: #007BFF;
 $hover-color: #0056b3;
 $border-color: #ccc;
 $transition-speed: 0.3s;
+
+@mixin btn-style {
+	padding: 15px;
+	background-color: $primary-color;
+	border: none;
+	color: $white-color;
+	border-radius: 5px;
+	cursor: pointer;
+	transition: background-color $transition-speed;
+
+	&:hover {
+		background-color: $hover-color;
+	}
+}
 
 .first-page-login {
   display: flex;
@@ -159,18 +280,13 @@ $transition-speed: 0.3s;
 	  }
 
 	  button {
-		padding: 15px;
-		background-color: $primary-color;
-		border: none;
-		color: $white-color;
-		border-radius: 5px;
-		cursor: pointer;
-		transition: background-color $transition-speed;
-
-		&:hover {
-		  background-color: $hover-color;
-		}
+		@include btn-style
 	  }
+	}
+
+	.logout-btn {
+		@include btn-style;
+		margin-top: 15px;
 	}
 
 	hr {

@@ -8,12 +8,12 @@
 			<a href="/"><button class="back-button">&#60;</button></a>
 
 			<h1> Login </h1>
-			<form>
+			<form @submit.prevent="login">
 				<label>E-mail</label>
-				<input>
+				<input placeholder="E-mail" v-model="email" type="email">
 
 				<label>Password</label>
-				<input>
+				<input placeholder="Password" v-model="password" type="password">
 
 				<button type="submit">Submit</button>
 			</form>
@@ -40,12 +40,17 @@ export default {
 	methods: {
 		async login() {
 			try {
-				const res = axios.post('http://127.0.0.1/api/auth/login', {
+				const response = await axios.post('http://127.0.0.1:8000/api/login', {
 					email: this.email,
-					password: this.password
-				})
-
-				// console.log(res.data.message);
+					password: this.password,
+				});
+				
+				if (response.data.authorisation) {
+					localStorage.setItem('authToken', response.data.authorisation.token);
+				}
+				
+				console.log(response.data.message);
+				this.$router.push('/');
 			} catch (err: any) {
 				console.log(err);
 			}
